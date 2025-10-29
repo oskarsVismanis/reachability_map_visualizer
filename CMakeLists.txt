@@ -7,11 +7,6 @@ project(reachability_map_visualizer)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 
-# Set CMake policy for Python finder modules
-if(POLICY CMP0148)
-  cmake_policy(SET CMP0148 OLD)
-endif()
-
 # ------------------------------------------------------------------------------
 # Dependencies
 # ------------------------------------------------------------------------------
@@ -20,9 +15,6 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-find_package(visualization_msgs REQUIRED)
-find_package(sensor_msgs REQUIRED)
-
 
 find_package(Qt5 REQUIRED COMPONENTS Widgets)
 find_package(HDF5 REQUIRED)
@@ -31,6 +23,8 @@ find_package(MPI REQUIRED)
 find_package(rviz_common REQUIRED)
 find_package(rviz_rendering REQUIRED)
 find_package(rviz_ogre_vendor REQUIRED)
+
+find_package(edi_robot_msgs REQUIRED)
 
 # ------------------------------------------------------------------------------
 # Message generation
@@ -78,7 +72,6 @@ ament_target_dependencies(reachability_map_plugin
         rclcpp
         std_msgs
         geometry_msgs
-        sensor_msgs
         rviz_common
         rviz_rendering
 )
@@ -94,19 +87,21 @@ target_link_libraries(reachability_map_plugin
 # Executable
 # ------------------------------------------------------------------------------
 
-# Voxel map
-add_executable(load_reachability_voxel src/load_reachability_voxel.cpp)
-ament_target_dependencies(load_reachability_voxel
+add_executable(load_reachability_map src/load_reachability_map.cpp)
+ament_target_dependencies(load_reachability_map
         rclcpp
         std_msgs
-        visualization_msgs
         geometry_msgs
-        sensor_msgs
 )
-target_link_libraries(load_reachability_voxel
+target_link_libraries(load_reachability_map
         hdf5_dataset
         "${cpp_typesupport_target}"
 )
+
+# reachability map sampler
+add_executable(reachability_map_sampler src/reachability_map_sampler.cpp)
+ament_target_dependencies(reachability_map_sampler rclcpp edi_robot_msgs)
+
 # ------------------------------------------------------------------------------
 # Install targets
 # ------------------------------------------------------------------------------
@@ -118,19 +113,21 @@ install(
         reachability_map_plugin
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
-        RUNTIME DESTINATION bin
+        RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install executable
 install(
         TARGETS
-        load_reachability_voxel
+        load_reachability_map
+        reachability_map_sampler
         DESTINATION lib/${PROJECT_NAME}
 )
+
 # Install headers
 install(
         DIRECTORY include/
-        DESTINATION include
+        DESTINATION include/
 )
 
 # Install RViz plugin description file
@@ -138,12 +135,6 @@ install(
         FILES plugin_description.xml
         DESTINATION share/${PROJECT_NAME}
 )
-
-# Install launch files (commented out - launch directory doesn't exist)
-# install(DIRECTORY
-#   launch
-#   DESTINATION share/${PROJECT_NAME}/
-# )
 
 # ------------------------------------------------------------------------------
 # Export
@@ -160,10 +151,6 @@ ament_export_dependencies(
         rviz_rendering
         HDF5
         MPI
-        sensor_msgs
 )
 
 ament_package()
-
-
-

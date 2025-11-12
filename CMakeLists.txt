@@ -100,7 +100,14 @@ target_link_libraries(load_reachability_map
 
 # reachability map sampler
 add_executable(reachability_map_sampler src/reachability_map_sampler.cpp)
-ament_target_dependencies(reachability_map_sampler rclcpp edi_robot_msgs)
+ament_target_dependencies(reachability_map_sampler 
+        rclcpp
+        edi_robot_msgs
+)
+target_link_libraries(reachability_map_sampler
+        hdf5_dataset
+        "${cpp_typesupport_target}"
+)
 
 # ------------------------------------------------------------------------------
 # Install targets

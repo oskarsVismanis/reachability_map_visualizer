@@ -3,7 +3,7 @@
 #include <random>
 
 #include "rclcpp/rclcpp.hpp"
-#include "edi_robot_msgs/srv/reachability_map_sample_array.hpp"
+#include "edi_robot_msgs/srv/sample_map.hpp"
 
 #include "reachability_map_visualizer/hdf5_dataset.h"
 
@@ -205,12 +205,12 @@ int main(int argc, char **argv)
 
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("reachability_map_sampler_server");
 
-  auto service = node->create_service<edi_robot_msgs::srv::ReachabilityMapSampleArray>(
+  auto service = node->create_service<edi_robot_msgs::srv::SampleMap>(
   "reachability_map_sampler",
-  [&reachability_map](const std::shared_ptr<edi_robot_msgs::srv::ReachabilityMapSampleArray::Request> request,
-                      std::shared_ptr<edi_robot_msgs::srv::ReachabilityMapSampleArray::Response> response)
+  [&reachability_map](const std::shared_ptr<edi_robot_msgs::srv::SampleMap::Request> request,
+                      std::shared_ptr<edi_robot_msgs::srv::SampleMap::Response> response)
   {
-    geometry_msgs::msg::Pose target = request->target;
+    geometry_msgs::msg::Pose target = request->target_pose;
     float radius = request->sampling_radius;
     int n_samples = request->n_samples;
 
